@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuneStream_Win32", "TuneStream_Win32.csproj", "{1F5DB14F-EF56-4CCD-B7C3-5CB4F3584EC6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1F5DB14F-EF56-4CCD-B7C3-5CB4F3584EC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F5DB14F-EF56-4CCD-B7C3-5CB4F3584EC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F5DB14F-EF56-4CCD-B7C3-5CB4F3584EC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F5DB14F-EF56-4CCD-B7C3-5CB4F3584EC6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {11328B6B-0107-4741-8636-BD7F3BAEF7F8}
+	EndGlobalSection
+EndGlobal
