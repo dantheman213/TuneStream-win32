@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <StartupObject>TuneStream_Win32.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
