@@ -70,7 +70,7 @@ namespace TuneStream_Win32
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Failed to connect: " + ex.Message);
+                MessageBox.Show($"Failed to connect: {ex.Message}\n\n{ex.StackTrace}");
             }
         }
 
