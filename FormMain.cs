@@ -16,6 +16,8 @@ namespace TuneStream_Win32
         private BufferedWaveProvider bufferedProvider;
         private string audioFilePath;
 
+        private bool startScanning;
+
         public FormMain()
         {
             InitializeComponent();
@@ -33,12 +35,23 @@ namespace TuneStream_Win32
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 audioFilePath = openFileDialog.FileName;
+
+                serverModeButton.Text = "Server started...";
+                serverModeButton.Enabled = false;
+                clientModeButton.Enabled = false;
+                deviceListComboBox.Enabled = false;
+                connectButton.Enabled = false;
+
                 StartBluetoothServer();
             }
         }
 
         private void ClientModeButton_Click(object sender, EventArgs e)
         {
+            clientModeButton.Text = "Scanning...";
+            clientModeButton.Enabled = false;
+            serverModeButton.Enabled = false;
+
             ScanForDevices();
         }
 
@@ -53,6 +66,8 @@ namespace TuneStream_Win32
         private void ScanForDevices()
         {
             labelStatus.Text = "Scanning for devices to connect to...";
+            timerScan.Enabled = true;
+            startScanning = true;
 
             bluetoothClient = new BluetoothClient();
             BluetoothDeviceInfo[] devices = bluetoothClient.DiscoverDevices();
@@ -73,7 +88,7 @@ namespace TuneStream_Win32
             try
             {
                 labelStatus.Text = "Attempting to connect to bluetooth device...";
-                Debug.WriteLine($"Attempting to connect to bluetooth device ${deviceInfo.DeviceName} / {deviceInfo.DeviceAddress} ...");
+                Debug.WriteLine($"Attempting to connect to bluetooth device {deviceInfo.DeviceName} / {deviceInfo.DeviceAddress} ...");
 
                 bluetoothClient.BeginConnect(deviceInfo.DeviceAddress, BluetoothService.SerialPort, ClientConnectCallback, null);
             }
@@ -149,6 +164,14 @@ namespace TuneStream_Win32
                 bufferedProvider.AddSamples(buffer, 0, bytesRead);
             }
             waveOut.Play();
+        }
+
+        private void timerScan_Tick(object sender, EventArgs e)
+        {
+            if (startScanning)
+            {
+                ScanForDevices();
+            }
         }
     }
 }

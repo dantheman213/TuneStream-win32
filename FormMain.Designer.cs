@@ -28,12 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             serverModeButton = new Button();
             clientModeButton = new Button();
             connectButton = new Button();
             deviceListComboBox = new ComboBox();
             label1 = new Label();
             labelStatus = new Label();
+            timerScan = new System.Windows.Forms.Timer(components);
             SuspendLayout();
             // 
             // serverModeButton
@@ -92,6 +94,11 @@
             labelStatus.TabIndex = 5;
             labelStatus.Text = "Standy";
             // 
+            // timerScan
+            // 
+            timerScan.Interval = 15000;
+            timerScan.Tick += timerScan_Tick;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -118,5 +125,6 @@
         private ComboBox deviceListComboBox;
         private Label label1;
         private Label labelStatus;
+        private System.Windows.Forms.Timer timerScan;
     }
 }
