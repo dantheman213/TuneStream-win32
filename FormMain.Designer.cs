@@ -104,6 +104,7 @@
             Controls.Add(clientModeButton);
             Controls.Add(serverModeButton);
             Name = "FormMain";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "FormMain";
             ResumeLayout(false);
             PerformLayout();
