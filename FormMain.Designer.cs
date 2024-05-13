@@ -90,9 +90,9 @@
             labelStatus.AutoSize = true;
             labelStatus.Location = new Point(87, 247);
             labelStatus.Name = "labelStatus";
-            labelStatus.Size = new Size(66, 25);
+            labelStatus.Size = new Size(77, 25);
             labelStatus.TabIndex = 5;
-            labelStatus.Text = "Standy";
+            labelStatus.Text = "Standby";
             // 
             // timerScan
             // 
@@ -112,7 +112,7 @@
             Controls.Add(serverModeButton);
             Name = "FormMain";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "FormMain";
+            Text = "TuneStream";
             ResumeLayout(false);
             PerformLayout();
         }
