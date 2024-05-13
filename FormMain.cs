@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using InTheHand.Net.Sockets;
 using InTheHand.Net.Bluetooth;
 using NAudio.Wave;
+using System.Diagnostics;
 
 namespace TuneStream_Win32
 {
@@ -51,13 +52,18 @@ namespace TuneStream_Win32
 
         private void ScanForDevices()
         {
+            labelStatus.Text = "Scanning for devices to connect to...";
+
             bluetoothClient = new BluetoothClient();
             BluetoothDeviceInfo[] devices = bluetoothClient.DiscoverDevices();
+            Debug.WriteLine($"Found {devices.Length} device(s)...");
+
             deviceListComboBox.Items.Clear();
             foreach (var device in devices)
             {
                 deviceListComboBox.Items.Add(device);
                 deviceListComboBox.DisplayMember = "DeviceName";
+                Debug.WriteLine($"Found bluetooth device: ${device}");
             }
             connectButton.Enabled = deviceListComboBox.Items.Count > 0;
         }
@@ -66,6 +72,9 @@ namespace TuneStream_Win32
         {
             try
             {
+                labelStatus.Text = "Attempting to connect to bluetooth device...";
+                Debug.WriteLine($"Attempting to connect to bluetooth device ${deviceInfo.DeviceName} / {deviceInfo.DeviceAddress} ...");
+
                 bluetoothClient.BeginConnect(deviceInfo.DeviceAddress, BluetoothService.SerialPort, ClientConnectCallback, null);
             }
             catch (Exception ex)
@@ -79,12 +88,15 @@ namespace TuneStream_Win32
             bluetoothListener = new BluetoothListener(BluetoothService.SerialPort);
             bluetoothListener.Start();
             bluetoothListener.BeginAcceptBluetoothClient(ServerAcceptClientCallback, null);
+
+            labelStatus.Text = "Server is listening for connections...";
         }
 
         private void ServerAcceptClientCallback(IAsyncResult ar)
         {
             try
             {
+                Debug.WriteLine("Received a request to connect...");
                 var client = bluetoothListener.EndAcceptBluetoothClient(ar);
                 var clientStream = client.GetStream();
                 bluetoothListener.BeginAcceptBluetoothClient(ServerAcceptClientCallback, null);

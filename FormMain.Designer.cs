@@ -32,11 +32,13 @@
             clientModeButton = new Button();
             connectButton = new Button();
             deviceListComboBox = new ComboBox();
+            label1 = new Label();
+            labelStatus = new Label();
             SuspendLayout();
             // 
             // serverModeButton
             // 
-            serverModeButton.Location = new Point(99, 28);
+            serverModeButton.Location = new Point(12, 28);
             serverModeButton.Name = "serverModeButton";
             serverModeButton.Size = new Size(112, 34);
             serverModeButton.TabIndex = 0;
@@ -56,7 +58,7 @@
             // 
             // connectButton
             // 
-            connectButton.Location = new Point(306, 191);
+            connectButton.Location = new Point(629, 107);
             connectButton.Name = "connectButton";
             connectButton.Size = new Size(159, 34);
             connectButton.TabIndex = 2;
@@ -72,11 +74,31 @@
             deviceListComboBox.Size = new Size(435, 33);
             deviceListComboBox.TabIndex = 3;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(12, 247);
+            label1.Name = "label1";
+            label1.Size = new Size(69, 25);
+            label1.TabIndex = 4;
+            label1.Text = "Status: ";
+            // 
+            // labelStatus
+            // 
+            labelStatus.AutoSize = true;
+            labelStatus.Location = new Point(87, 247);
+            labelStatus.Name = "labelStatus";
+            labelStatus.Size = new Size(66, 25);
+            labelStatus.TabIndex = 5;
+            labelStatus.Text = "Standy";
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 254);
+            ClientSize = new Size(800, 468);
+            Controls.Add(labelStatus);
+            Controls.Add(label1);
             Controls.Add(deviceListComboBox);
             Controls.Add(connectButton);
             Controls.Add(clientModeButton);
@@ -84,6 +106,7 @@
             Name = "FormMain";
             Text = "FormMain";
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -92,5 +115,7 @@
         private Button clientModeButton;
         private Button connectButton;
         private ComboBox deviceListComboBox;
+        private Label label1;
+        private Label labelStatus;
     }
 }
