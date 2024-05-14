@@ -6,6 +6,8 @@ using InTheHand.Net.Bluetooth;
 using NAudio.Wave;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.VisualBasic;
+using Timer = System.Windows.Forms.Timer;
 
 namespace TuneStream_Win32
 {
@@ -54,6 +56,7 @@ namespace TuneStream_Win32
             serverModeButton.Enabled = false;
 
             await ScanForDevicesAsync();
+            timerScan.Enabled = true;
         }
 
         private async void ConnectButton_Click(object sender, EventArgs e)
@@ -146,6 +149,11 @@ namespace TuneStream_Win32
                 bufferedProvider.AddSamples(buffer, 0, bytesRead);
             }
             waveOut.Play();
+        }
+
+        private void timerScan_Tick(object sender, EventArgs e)
+        {
+            ScanForDevicesAsync().Wait();
         }
     }
 }
