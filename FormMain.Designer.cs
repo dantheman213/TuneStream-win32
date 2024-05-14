@@ -94,11 +94,6 @@
             labelStatus.TabIndex = 5;
             labelStatus.Text = "Standby";
             // 
-            // timerScan
-            // 
-            timerScan.Interval = 15000;
-            timerScan.Tick += timerScan_Tick;
-            // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);

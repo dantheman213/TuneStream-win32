@@ -5,6 +5,7 @@ using InTheHand.Net.Sockets;
 using InTheHand.Net.Bluetooth;
 using NAudio.Wave;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace TuneStream_Win32
 {
@@ -24,7 +25,7 @@ namespace TuneStream_Win32
             waveOut = new WaveOutEvent();
         }
 
-        private void ServerModeButton_Click(object sender, EventArgs e)
+        private async void ServerModeButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
@@ -42,35 +43,34 @@ namespace TuneStream_Win32
                 deviceListComboBox.Enabled = false;
                 connectButton.Enabled = false;
 
-                StartBluetoothServer();
+                await StartBluetoothServerAsync();
             }
         }
 
-        private void ClientModeButton_Click(object sender, EventArgs e)
+        private async void ClientModeButton_Click(object sender, EventArgs e)
         {
             clientModeButton.Text = "Scanning...";
             clientModeButton.Enabled = false;
             serverModeButton.Enabled = false;
 
-            ScanForDevices();
+            await ScanForDevicesAsync();
         }
 
-        private void ConnectButton_Click(object sender, EventArgs e)
+        private async void ConnectButton_Click(object sender, EventArgs e)
         {
             if (deviceListComboBox.SelectedItem is BluetoothDeviceInfo deviceInfo)
             {
-                ConnectToDevice(deviceInfo);
+                await ConnectToDeviceAsync(deviceInfo);
             }
         }
 
-        private void ScanForDevices()
+        private async Task ScanForDevicesAsync()
         {
             labelStatus.Text = "Scanning for devices to connect to...";
-            timerScan.Enabled = true;
             startScanning = true;
 
             bluetoothClient = new BluetoothClient();
-            BluetoothDeviceInfo[] devices = bluetoothClient.DiscoverDevices();
+            BluetoothDeviceInfo[] devices = await Task.Run(() => bluetoothClient.DiscoverDevices());
             Debug.WriteLine($"Found {devices.Length} device(s)...");
 
             deviceListComboBox.Items.Clear();
@@ -78,19 +78,20 @@ namespace TuneStream_Win32
             {
                 deviceListComboBox.Items.Add(device);
                 deviceListComboBox.DisplayMember = "DeviceName";
-                Debug.WriteLine($"Found bluetooth device: ${device}");
+                Debug.WriteLine($"Found bluetooth device: {device}");
             }
             connectButton.Enabled = deviceListComboBox.Items.Count > 0;
         }
 
-        private void ConnectToDevice(BluetoothDeviceInfo deviceInfo)
+        private async Task ConnectToDeviceAsync(BluetoothDeviceInfo deviceInfo)
         {
             try
             {
                 labelStatus.Text = "Attempting to connect to bluetooth device...";
                 Debug.WriteLine($"Attempting to connect to bluetooth device {deviceInfo.DeviceName} / {deviceInfo.DeviceAddress} ...");
 
-                bluetoothClient.BeginConnect(deviceInfo.DeviceAddress, BluetoothService.SerialPort, ClientConnectCallback, null);
+                await Task.Factory.FromAsync(bluetoothClient.BeginConnect, bluetoothClient.EndConnect, deviceInfo.DeviceAddress, BluetoothService.SerialPort, null);
+                StartAudioStream(bluetoothClient.GetStream());
             }
             catch (Exception ex)
             {
@@ -98,80 +99,53 @@ namespace TuneStream_Win32
             }
         }
 
-        private void StartBluetoothServer()
+        private async Task StartBluetoothServerAsync()
         {
             bluetoothListener = new BluetoothListener(BluetoothService.SerialPort);
             bluetoothListener.Start();
-            bluetoothListener.BeginAcceptBluetoothClient(ServerAcceptClientCallback, null);
-
             labelStatus.Text = "Server is listening for connections...";
-        }
 
-        private void ServerAcceptClientCallback(IAsyncResult ar)
-        {
-            try
+            while (true)
             {
+                var client = await Task.Factory.FromAsync(bluetoothListener.BeginAcceptBluetoothClient, bluetoothListener.EndAcceptBluetoothClient, null);
                 Debug.WriteLine("Received a request to connect...");
-                var client = bluetoothListener.EndAcceptBluetoothClient(ar);
                 var clientStream = client.GetStream();
-                bluetoothListener.BeginAcceptBluetoothClient(ServerAcceptClientCallback, null);
-                StreamAudioToClient(clientStream, audioFilePath);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error accepting client: {ex.Message}\n\n{ex.StackTrace}");
+                _ = StreamAudioToClientAsync(clientStream, audioFilePath);
             }
         }
 
-        private void ClientConnectCallback(IAsyncResult ar)
+        private async Task StreamAudioToClientAsync(Stream clientStream, string filePath)
         {
             try
             {
-                bluetoothClient.EndConnect(ar);
-                var stream = bluetoothClient.GetStream();
-                StartAudioStream(stream);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error connecting to server: {ex.Message}\n\n{ex.StackTrace}");
-            }
-        }
-
-        private void StreamAudioToClient(Stream clientStream, string filePath)
-        {
-            using (var reader = new AudioFileReader(filePath))
-            {
-                var bufferedProvider = new BufferedWaveProvider(reader.WaveFormat);
-                var buffer = new byte[1024];
-                int bytesRead;
-
-                while ((bytesRead = reader.Read(buffer, 0, buffer.Length)) > 0)
+                using (var reader = new AudioFileReader(filePath))
                 {
-                    clientStream.Write(buffer, 0, bytesRead);
+                    var buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    {
+                        await clientStream.WriteAsync(buffer, 0, bytesRead);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error streaming audio: {ex.Message}\n\n{ex.StackTrace}");
+            }
         }
 
-        private void StartAudioStream(Stream netStream)
+        private async void StartAudioStream(Stream netStream)
         {
             bufferedProvider = new BufferedWaveProvider(new WaveFormat(44100, 16, 2));
             waveOut.Init(bufferedProvider);
             var buffer = new byte[1024];
             int bytesRead;
 
-            while ((bytesRead = netStream.Read(buffer, 0, buffer.Length)) > 0)
+            while ((bytesRead = await netStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
                 bufferedProvider.AddSamples(buffer, 0, bytesRead);
             }
             waveOut.Play();
-        }
-
-        private void timerScan_Tick(object sender, EventArgs e)
-        {
-            if (startScanning)
-            {
-                ScanForDevices();
-            }
         }
     }
 }
